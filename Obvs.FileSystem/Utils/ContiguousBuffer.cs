@@ -69,12 +69,19 @@ namespace Obvs.FileSystem.Utils
 
         private void SendBuffer()
         {
-            var buffer = _buffer.OrderBy(pair => pair.Key).ToArray();
-            foreach (var keyValuePair in buffer)
+            if (!_buffer.Any())
             {
-                _files.OnNext(keyValuePair.Value);
+                _lastId = 0;
             }
-            _lastId = buffer.Last().Key;
+            else
+            {
+                var buffer = _buffer.OrderBy(pair => pair.Key).ToArray();
+                foreach (var keyValuePair in buffer)
+                {
+                    _files.OnNext(keyValuePair.Value);
+                }
+                _lastId = buffer.Last().Key;
+            }
             _buffer.Clear();
             _bufferCheckSum = 0;
         }

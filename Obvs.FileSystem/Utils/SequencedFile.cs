@@ -77,7 +77,21 @@ namespace Obvs.FileSystem.Utils
 
         private string ReadText()
         {
-            return File.ReadAllText(_path);
+            using (FileStream fs = new FileStream(_path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    byte[] buffer = new byte[4096];
+                    int total = 0;
+                    while ((total = fs.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        ms.Write(buffer, 0, total);
+                    };
+                    byte[] fileBytes = ms.ToArray();
+                    return System.Text.Encoding.Default.GetString(fileBytes);
+                }
+            }
+            //return File.ReadAllText(_path);
         }
 
         private byte[] ReadBytes()
@@ -87,12 +101,12 @@ namespace Obvs.FileSystem.Utils
 
         private void WriteBytes(object data)
         {
-            File.WriteAllBytes(_path, (byte[]) data);
+            File.WriteAllBytes(_path, (byte[])data);
         }
 
         private void WriteText(object data)
         {
-            File.WriteAllText(_path, (string) data);
+            File.WriteAllText(_path, (string)data);
         }
 
         private bool IsTextFile
